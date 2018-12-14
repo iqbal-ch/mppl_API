@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const EventSchema = mongoose.Schema({
+const BarangSchema = mongoose.Schema({
     // butuh diliat enaknya pake types object atau increment number aja
     _id: mongoose.Schema.Types.ObjectId,
 
@@ -34,12 +34,13 @@ const EventSchema = mongoose.Schema({
     category: {
       type: String, 
       required: true
-    }
+    },
 
-    // image:{
-    //   type : mongoose.Schema.Types.ObjectId, ref: 'Image'
-    // }
+    image:{
+      type : String,
+      required: true
+    }
 
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+module.exports = mongoose.model('Barang', BarangSchema);

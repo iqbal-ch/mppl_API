@@ -32,7 +32,7 @@ const upload = multer({
 });
 
 
-const Event = require('../models/event');
+const Barang = require('../models/barang');
 // const Categoryevent = require('../models/categoryevent');
 // const Image = require('../models/image');
 // var date_create = Date.now();
@@ -45,41 +45,43 @@ const Event = require('../models/event');
 
 //Routesnya /products
 
-//Post Events
-router.post('/', checkAuth,  (req, res, next) => {
-    const token = req.headers.authorization.split(" ")[1];
-    const decode = jwt.verify(token, "bismillah");
+//Post
+router.post('/', checkAuth, upload.single('image'),  (req, res, next) => {
+    // const token = req.headers.authorization.split(" ")[1];
+    // const decode = jwt.verify(token, "bismillah");
 
-    const event = new Event({
+    const barang = new Barang({
         _id: new mongoose.Types.ObjectId(),
         nama : req.body.nama,
         qty: req.body.qty,
         harga : req.body.harga,
         description: req.body.description,
         size: req.body.size,
+        image: req.file.path,
         // userId: decode.userId,
         category: req.body.category
 
     });
 
-    event
+    barang
         .save()
         .then(result => {
             console.log(result);
             res.status(200).json({
-                message: 'Event successfully created',
-                createdEvent: {
+                message: 'Barang successfully created',
+                created: {
                     nama: result.nama,
                     qty: result.qty,
                     harga: result.harga,
                     description: result.description,
                     _id: result._id,
                     size: result.size,
+                    image: result.image,
                     // userId: result.userId,
                     category: result.category,
                     request: {
                         type: 'GET',
-                        url: "http://localhost:3000/events/" + result._id
+                        url: "http://localhost:3000/barangs/" + result._id
                     }
                 }
             });
@@ -140,7 +142,7 @@ router.post('/', checkAuth,  (req, res, next) => {
 
 //Get All Event
 router.get('/', (req, res, next) => {
-    Event.find()
+    Barang.find()
         // .populate('image')
         // .populate('userId', 'name')
         // .populate('categoryevent', 'name')
@@ -148,7 +150,7 @@ router.get('/', (req, res, next) => {
         .then(docs => {
             const response = {
                 count: docs.length,
-                events: docs.map(doc => {
+                barangs: docs.map(doc => {
                     return {
                         _id: doc._id,
                         nama: doc.nama,
@@ -156,6 +158,7 @@ router.get('/', (req, res, next) => {
                         harga: doc.harga,
                         description: doc.description,
                         size: doc.size,
+                        image: doc.image,
                         // userId: doc.userId,
                         category: doc.category,
                         // image: doc.image,
@@ -173,9 +176,9 @@ router.get('/', (req, res, next) => {
 });
 
 // Get by EventId
-router.get('/:eventId', (req, res, next) => {
-    const id = req.params.eventId;
-    Event.findById(id)
+router.get('/:barangId', (req, res, next) => {
+    const id = req.params.barangId;
+    Barang.findById(id)
         // .populate('image', 'event_image_path')
         // .populate('userId', 'name')
         // .populate('categoryevent', 'name')
@@ -185,15 +188,15 @@ router.get('/:eventId', (req, res, next) => {
             console.log("From database", doc);
             if(doc) {
                 res.status(200).json({
-                    event: doc,
+                    barang: doc,
                     request: {
                         type: "GET",
-                        desc: "Get all events",
-                        url: "http://localhost:3000/events"
+                        desc: "Get all barang",
+                        url: "http://localhost:3000/barangs"
                     }
                 });
             } else {
-                res.status(404).json({message: "Format EventID tidak valid"});
+                res.status(404).json({message: "Format ID tidak valid"});
             }
         })
         .catch(err => {
@@ -231,20 +234,20 @@ router.get('/:eventId', (req, res, next) => {
 //         });
 // });
 
-router.patch('/edit/:eventId', checkAuth, (req, res, next) => {
-    const id = req.params.eventId;
+router.patch('/edit/:barangid', checkAuth, (req, res, next) => {
+    const id = req.params.barangId;
     const updateOps = {};
     for (const ops of req.body) {
         updateOps[ops.propName] = ops.value;
     }
-    Event.update({ _id: id }, { $set: updateOps })
+    Barang.update({ _id: id }, { $set: updateOps })
         .exec()
         .then(result => {
             res.status(200).json({
-                message: "Event updated",
+                message: "updated",
                 request: {
                     type: "PATCH",
-                    url: "http://localhost:3000/events" + id
+                    url: "http://localhost:3000/barangs" + id
                 }
             });
         })
@@ -281,16 +284,16 @@ router.patch('/edit/:eventId', checkAuth, (req, res, next) => {
 //         });
 // });
 
-router.post('/delete/:eventId', checkAuth, (req, res, next) => {
-    const id = req.params.eventId;
-    Event.update({ _id: id }, { $set: {status : "0"} })
+router.post('/delete/:barangId', checkAuth, (req, res, next) => {
+    const id = req.params.barangId;
+    Barang.update({ _id: id }, { $set: {status : "0"} })
         .exec()
         .then(result => {
             res.status(200).json({
-                message: "Event Deleted",
+                message: "Deleted",
                 request: {
                     type: "PATCH",
-                    url: "http://localhost:3000/events" + id
+                    url: "http://localhost:3000/barangs" + id
                 }
             });
         })
