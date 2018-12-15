@@ -92,50 +92,48 @@ router.post('/', upload.single('image'),  (req, res, next) => {
         });
 });
 
-// //Get Event By UserId
-// router.get('/user', checkAuth, (req, res, next) => {
+// //Get Event By Category
+router.get('/cat/:cat',  (req, res, next) => {
 //   const token = req.headers.authorization.split(" ")[1];
 //   const decode = jwt.verify(token, "bismillah");
 //   const userId = decode.userId;
-//     Event.find({userId : userId})
-//         .populate('image', 'event_image_path')
-//         .populate('userId', 'name')
-//         .populate('categoryevent', 'name')
-//         .select('')
-//         .exec()
-//         .then(docs => {
-//             const response = {
-//                 count: docs.length,
-//                 events: docs.map(doc => {
-//                     return {
-//                         title: doc.title,
-//                         date_create: doc.date_create,
-//                         date_event: doc.date_event,
-//                         description: doc.description,
-//                         image: doc.image,
-//                         _id: doc._id,
-//                         // province: doc.province,
-//                         city: doc.city,
-//                         // address: doc.address,
-//                         // link: doc.link,
-//                         userId: doc.userId,
-//                         categoryevent: doc.categoryevent,
-//                         request: {
-//                             type: "GET",
-//                             url: "http://localhost:3000/events/" + doc._id
-//                         }
-//                     }
-//                 })
-//             };
-//             res.status(200).json(response);
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({
-//                 error: err
-//             });
-//         });
-// });
+    const cat = req.params.cat;
+
+    Barang.find({category : cat})
+        .exec()
+        .then(docs => {
+            const response = {
+                count: docs.length,
+                barangs: docs.map(doc => {
+                    return {
+                        nama: doc.nama,
+                        qty: doc.qty,
+                        harga: doc.harga,
+                        description: doc.description,
+                        image: doc.image,
+                        _id: doc._id,
+                        // province: doc.province,
+                        // city: doc.city,
+                        // address: doc.address,
+                        // link: doc.link,
+                        // userId: doc.userId,
+                        category: doc.category,
+                        request: {
+                            type: "GET",
+                            url: "http://localhost:3000/events/" + doc._id
+                        }
+                    }
+                })
+            };
+            res.status(200).json(response);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+});
 
 
 //Get All Event

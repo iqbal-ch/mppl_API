@@ -7,7 +7,34 @@ const Order = require('../models/order');
 const Barang = require('../models/barang');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 // Routesnya /orders
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, new Date().toDateString() + file.originalname);
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        // reject a file
+        cb(null, false);
+    }
+}
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
 
 
 //Get Orders
@@ -63,17 +90,11 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
                 message: "Stok Habis"
             });
         }
-    
-
             const order = new Order ({
                 _id: mongoose.Types.ObjectId(),
                 date_created : new Date().addHours(7),
-                // date: req.body.date,
-                // budget: req.body.budget,
                 address : req.body.address,
                 qty : req.body.qty,
-                // description: req.body.description,
-                // category: req.body.categoryId,
                 userId : decode.userId,
                 IdBarang : id
             });
@@ -82,16 +103,7 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
         .then(result => {
             res.status(201).json({
                 message: "Order stored",
-                createdOrder: {
-                // category: result.category,
-                // date: result.date,
-                // date_created: result.date_created,
-                // budget: result.budget,
-                address: result.address,
-                // description: result.description,
-                _id: result._id,
-                // userId: result.userId,
-                },
+                createdOrder: {},
                 request: {
                     type : "GET",
                     url: 'http://localhost:3000/orders/' + result._id
@@ -104,6 +116,7 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
                 error: err
             });
         });
+    
 });
 
 //Get By OrderId
@@ -135,46 +148,53 @@ router.get('/:orderId', checkAuth, (req, res, next) => {
 
 
 //Delete Orders
-router.post('/delete/:orderId', checkAuth, (req, res, next) => {
-    const id = req.params.orderId;
-    Order.update({ _id: id }, { $set: {status : "0"} })
-        .exec()
-        .then(result => {
-            res.status(200).json({
-                message: "Order Rejected",
-                request: {
-                    type: "PATCH",
-                    url: "http://localhost:3000/events" + id
-                }
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
-                error: err
-            });
-        });
-});
-
-// router.delete('/:orderId', checkAuth, (req, res, next) => {
-//     Order.remove({ _id: req.params.orderId })
-//     .exec()
+// router.post('/delete/:orderId', checkAuth, (req, res, next) => {
+//     const id = req.params.orderId;
+//     Order.update({ _id: id }, { $set: {status : "0"} })
+//         .exec()
 //         .then(result => {
 //             res.status(200).json({
-//                 message: "Order Deleted",
+//                 message: "Order Rejected",
 //                 request: {
-//                     type: 'POST',
-//                     url: 'http://localhost:3000/orders',
-//                     body: { productId: "ID", quantity: "Number" }
+//                     type: "PATCH",
+//                     url: "http://localhost:3000/events" + id
 //                 }
 //             });
 //         })
 //         .catch(err => {
+//             console.log(err);
 //             res.status(500).json({
 //                 error: err
 //             });
 //         });
 // });
+
+
+//Upload Bukti Pembayaran
+router.post('/upload/:IdBarang', upload.single('image'), (req, res, next) => {
+    // const token = req.headers.authorization.split(" ")[1];
+    // const decode = jwt.verify(token, "bismillah");
+    const id = req.params.IdBarang;
+  
+    Order.update({_id: id}, {$set: {image : req.file.path}})
+          .then(result => {
+              res.status(201).json({
+                  message: "Uploaded",
+                  createdOrder: {},
+                  request: {
+                      type : "GET",
+                      url: 'http://localhost:3000/orders/' + result._id
+                  }
+              });
+          })
+          .catch(err => {
+              console.log(err);
+              res.status(500).json({
+                  error: err
+              });
+          });
+      
+  });
 
 
 module.exports = router;

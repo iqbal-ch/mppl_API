@@ -29,6 +29,10 @@ const OrderSchema = mongoose.Schema({
 
     IdBarang: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Barang', required: true
+    },
+
+    image: {
+        type: String
     }
   
     //   IdBarang: [{
