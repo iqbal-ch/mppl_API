@@ -50,41 +50,37 @@ Date.prototype.addHours = function(h){
 }
 
 //Post Orders
-router.post('/', checkAuth, (req, res, next) => {
+router.post('/:IdBarang', checkAuth, (req, res, next) => {
   const token = req.headers.authorization.split(" ")[1];
   const decode = jwt.verify(token, "bismillah");
+  const id = req.params.IdBarang;
 
-    Category.findById(req.body.categoryId)
-        .then(category => {
-            if(!category) {
-                return res.status(404).json({
-                    message: "Category not found"
-                });
-            }
             const order = new Order ({
                 _id: mongoose.Types.ObjectId(),
                 date_created : new Date().addHours(7),
-                date: req.body.date,
-                budget: req.body.budget,
+                // date: req.body.date,
+                // budget: req.body.budget,
                 address : req.body.address,
-                description: req.body.description,
-                category: req.body.categoryId,
-                userId : decode.userId
+                qty : req.body.qty,
+                // description: req.body.description,
+                // category: req.body.categoryId,
+                userId : decode.userId,
+                IdBarang : id
             });
-            return order.save();
-        })
+            return order.save()
+        
         .then(result => {
             res.status(201).json({
                 message: "Order stored",
                 createdOrder: {
-                category: result.category,
-                date: result.date,
-                date_created: result.date_created,
-                budget: result.budget,
+                // category: result.category,
+                // date: result.date,
+                // date_created: result.date_created,
+                // budget: result.budget,
                 address: result.address,
-                description: result.description,
+                // description: result.description,
                 _id: result._id,
-                userId: result.userId,
+                // userId: result.userId,
                 },
                 request: {
                     type : "GET",

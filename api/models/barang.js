@@ -26,11 +26,6 @@ const BarangSchema = mongoose.Schema({
         type: String
     },
 
-    size: {
-      type: String,
-      required: true
-    },
-
     category: {
       type: String, 
       required: true

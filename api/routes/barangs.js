@@ -46,7 +46,7 @@ const Barang = require('../models/barang');
 //Routesnya /products
 
 //Post
-router.post('/', checkAuth, upload.single('image'),  (req, res, next) => {
+router.post('/', upload.single('image'),  (req, res, next) => {
     // const token = req.headers.authorization.split(" ")[1];
     // const decode = jwt.verify(token, "bismillah");
 
@@ -56,7 +56,6 @@ router.post('/', checkAuth, upload.single('image'),  (req, res, next) => {
         qty: req.body.qty,
         harga : req.body.harga,
         description: req.body.description,
-        size: req.body.size,
         image: req.file.path,
         // userId: decode.userId,
         category: req.body.category
@@ -75,7 +74,6 @@ router.post('/', checkAuth, upload.single('image'),  (req, res, next) => {
                     harga: result.harga,
                     description: result.description,
                     _id: result._id,
-                    size: result.size,
                     image: result.image,
                     // userId: result.userId,
                     category: result.category,
@@ -234,7 +232,7 @@ router.get('/:barangId', (req, res, next) => {
 //         });
 // });
 
-router.patch('/edit/:barangid', checkAuth, (req, res, next) => {
+router.patch('/edit/:barangid', (req, res, next) => {
     const id = req.params.barangId;
     const updateOps = {};
     for (const ops of req.body) {
@@ -284,7 +282,7 @@ router.patch('/edit/:barangid', checkAuth, (req, res, next) => {
 //         });
 // });
 
-router.post('/delete/:barangId', checkAuth, (req, res, next) => {
+router.post('/delete/:barangId', (req, res, next) => {
     const id = req.params.barangId;
     Barang.update({ _id: id }, { $set: {status : "0"} })
         .exec()
