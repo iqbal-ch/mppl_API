@@ -4,6 +4,7 @@ const mongoose = require('mongoose');   //Generate ID
 const checkAuth = require('../middleware/checkauth');
 const Order = require('../models/order');
 // const Category = require('../models/category');
+const Barang = require('../models/barang');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 // Routesnya /orders
@@ -55,6 +56,15 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
   const decode = jwt.verify(token, "bismillah");
   const id = req.params.IdBarang;
 
+  Barang.findById(id)
+    .then(barang => {
+        if(barang.qty == 0){
+            return res.status(404).json({
+                message: "Stok Habis"
+            });
+        }
+    
+
             const order = new Order ({
                 _id: mongoose.Types.ObjectId(),
                 date_created : new Date().addHours(7),
@@ -68,7 +78,7 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
                 IdBarang : id
             });
             return order.save()
-        
+        })
         .then(result => {
             res.status(201).json({
                 message: "Order stored",
