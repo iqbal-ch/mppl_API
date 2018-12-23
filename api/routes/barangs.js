@@ -5,12 +5,17 @@ const multer = require('multer');
 const checkAuth = require('../middleware/checkauth');
 const jwt = require('jsonwebtoken');
 
+var today = new Date();
+var date = today.getFullYear()+''+(today.getMonth()+1)+''+today.getDate();
+var time = ((today.getHours()+7)%24) + "" + today.getMinutes() + "" + today.getSeconds();
+var date_create = date+'_'+time;
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, './uploads/');
     },
     filename: function(req, file, cb) {
-        cb(null, new Date().toDateString() + file.originalname);
+        cb(null, date_create +"_"+ file.originalname);
     }
 });
 
@@ -33,22 +38,10 @@ const upload = multer({
 
 
 const Barang = require('../models/barang');
-// const Categoryevent = require('../models/categoryevent');
-// const Image = require('../models/image');
-// var date_create = Date.now();
-// var today = new Date();
-// var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-// var time = ((today.getHours()+7)%24) + ":" + today.getMinutes() + ":" + today.getSeconds();
-// var date_create = date+' '+time;
-
-//var name = Jwts.parser().setSigningKey("bismillah").parseClaimsJws("base64EncodedJwtHere").getBody().get("name", String.class);
-
 //Routesnya /products
 
 //Post
 router.post('/', upload.single('image'),  (req, res, next) => {
-    // const token = req.headers.authorization.split(" ")[1];
-    // const decode = jwt.verify(token, "bismillah");
 
     const barang = new Barang({
         _id: new mongoose.Types.ObjectId(),
@@ -56,8 +49,7 @@ router.post('/', upload.single('image'),  (req, res, next) => {
         qty: req.body.qty,
         harga : req.body.harga,
         description: req.body.description,
-        image: req.file.path,
-        // userId: decode.userId,
+        image: req.file.filename,
         category: req.body.category
 
     });
@@ -75,7 +67,6 @@ router.post('/', upload.single('image'),  (req, res, next) => {
                     description: result.description,
                     _id: result._id,
                     image: result.image,
-                    // userId: result.userId,
                     category: result.category,
                     request: {
                         type: 'GET',
@@ -94,9 +85,6 @@ router.post('/', upload.single('image'),  (req, res, next) => {
 
 // //Get Event By Category
 router.get('/cat/:cat',  (req, res, next) => {
-//   const token = req.headers.authorization.split(" ")[1];
-//   const decode = jwt.verify(token, "bismillah");
-//   const userId = decode.userId;
     const cat = req.params.cat;
 
     Barang.find({category : cat})
@@ -112,15 +100,10 @@ router.get('/cat/:cat',  (req, res, next) => {
                         description: doc.description,
                         image: doc.image,
                         _id: doc._id,
-                        // province: doc.province,
-                        // city: doc.city,
-                        // address: doc.address,
-                        // link: doc.link,
-                        // userId: doc.userId,
                         category: doc.category,
                         request: {
                             type: "GET",
-                            url: "http://localhost:3000/events/" + doc._id
+                            url: "http://localhost:3000/uploads/" + doc.image
                         }
                     }
                 })
@@ -139,9 +122,6 @@ router.get('/cat/:cat',  (req, res, next) => {
 //Get All Event
 router.get('/', (req, res, next) => {
     Barang.find()
-        // .populate('image')
-        // .populate('userId', 'name')
-        // .populate('categoryevent', 'name')
         .exec()
         .then(docs => {
             const response = {
@@ -155,9 +135,11 @@ router.get('/', (req, res, next) => {
                         description: doc.description,
                         size: doc.size,
                         image: doc.image,
-                        // userId: doc.userId,
                         category: doc.category,
-                        // image: doc.image,
+                        request: {
+                            type: "GET",
+                            url: "http://localhost:3000/uploads/" + doc.image
+                        }
                     }
                 })
             };
@@ -175,9 +157,6 @@ router.get('/', (req, res, next) => {
 router.get('/:barangId', (req, res, next) => {
     const id = req.params.barangId;
     Barang.findById(id)
-        // .populate('image', 'event_image_path')
-        // .populate('userId', 'name')
-        // .populate('categoryevent', 'name')
         .select('')
         .exec()
         .then(doc => {
@@ -187,8 +166,7 @@ router.get('/:barangId', (req, res, next) => {
                     barang: doc,
                     request: {
                         type: "GET",
-                        desc: "Get all barang",
-                        url: "http://localhost:3000/barangs"
+                        url: "http://localhost:3000/uploads/" + doc.image
                     }
                 });
             } else {
@@ -201,34 +179,6 @@ router.get('/:barangId', (req, res, next) => {
         });
 });
 
-
-// router.post('/search', (req, res, next) => {
-//     var title = req.body.title;
-//     Event.find({title : title})
-//         .populate('userId', 'name')
-//         .populate('categoryevent', 'name')
-//         .select('')
-//         .exec()
-//         .then(doc => {
-//             console.log("From database", doc);
-//             if(doc) {
-//                 res.status(200).json({
-//                     event: doc,
-//                     request: {
-//                         type: "GET",
-//                         desc: "Get all events",
-//                         url: "http://localhost:3000/events"
-//                     }
-//                 });
-//             } else {
-//                 res.status(404).json({message: "Format EventID tidak valid"});
-//             }
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({error : err});
-//         });
-// });
 
 router.patch('/edit/:barangid', (req, res, next) => {
     const id = req.params.barangId;
@@ -255,30 +205,6 @@ router.patch('/edit/:barangid', (req, res, next) => {
         });
 });
 
-// router.patch('/accept/:eventId', checkAuth, (req, res, next) => {
-//     const id = req.params.eventId;
-//     // const updateOps = {};
-//     // for (const ops of req.body) {
-//     //     updateOps[ops.propName] = ops.value;
-//     // }
-//     Event.update({ _id: id }, { $set: {status : "Accept"} })
-//         .exec()
-//         .then(result => {
-//             res.status(200).json({
-//                 message: "Event Accepted",
-//                 request: {
-//                     type: "PATCH",
-//                     url: "http://localhost:3000/events" + id
-//                 }
-//             });
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({
-//                 error: err
-//             });
-//         });
-// });
 
 router.post('/delete/:barangId', (req, res, next) => {
     const id = req.params.barangId;
@@ -300,20 +226,5 @@ router.post('/delete/:barangId', (req, res, next) => {
             });
         });
 });
-
-// router.delete('/delete/:eventId', checkAuth, (req, res, next) => {
-//     const id = req.params.eventId;
-//     Event.remove({_id: id})
-//         .exec()
-//         .then(result => {
-//             res.status(200).json(result);
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.status(500).json({
-//                 error: err
-//             });
-//         });
-// });
 
 module.exports = router;

@@ -89,6 +89,10 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
             return res.status(404).json({
                 message: "Stok Habis"
             });
+        } else if(barang.qty < req.body.qty){
+            return res.status(404).json({
+                message: "Stok Kurang"
+            });
         }
             const order = new Order ({
                 _id: mongoose.Types.ObjectId(),
@@ -98,7 +102,17 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
                 userId : decode.userId,
                 IdBarang : id
             });
+            
+            const stok = barang.qty - order.qty;
+            console.log(stok);
+
+            Barang.updateOne({_id:id}, {$set: {qty : stok}});
+            
             return order.save()
+
+
+
+            
         })
         .then(result => {
             res.status(201).json({
@@ -123,7 +137,7 @@ router.post('/:IdBarang', checkAuth, (req, res, next) => {
 router.get('/:orderId', checkAuth, (req, res, next) => {
 
     Order.findById(req.params.orderId)
-        .populate('category', 'name')
+        // .populate('category', 'name')
         .exec()
         .then(order => {
             if(!order) {
