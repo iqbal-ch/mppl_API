@@ -94,17 +94,14 @@ router.get('/cat/:cat',  (req, res, next) => {
                 count: docs.length,
                 barangs: docs.map(doc => {
                     return {
+                        _id: doc._id,
                         nama: doc.nama,
                         qty: doc.qty,
                         harga: doc.harga,
                         description: doc.description,
-                        image: doc.image,
-                        _id: doc._id,
+                        size: doc.size,
+                        image: "http://localhost:3000/uploads/" + doc.image,
                         category: doc.category,
-                        request: {
-                            type: "GET",
-                            url: "http://localhost:3000/uploads/" + doc.image
-                        }
                     }
                 })
             };
@@ -134,12 +131,8 @@ router.get('/', (req, res, next) => {
                         harga: doc.harga,
                         description: doc.description,
                         size: doc.size,
-                        image: doc.image,
+                        image: "http://localhost:3000/uploads/" + doc.image,
                         category: doc.category,
-                        request: {
-                            type: "GET",
-                            url: "http://localhost:3000/uploads/" + doc.image
-                        }
                     }
                 })
             };
@@ -163,11 +156,15 @@ router.get('/:barangId', (req, res, next) => {
             console.log("From database", doc);
             if(doc) {
                 res.status(200).json({
-                    barang: doc,
-                    request: {
-                        type: "GET",
-                        url: "http://localhost:3000/uploads/" + doc.image
-                    }
+                    _id: doc._id,
+                    nama: doc.nama,
+                    qty: doc.qty,
+                    harga: doc.harga,
+                    description: doc.description,
+                    size: doc.size,
+                    image: "http://localhost:3000/uploads/" + doc.image,
+                    category: doc.category,
+
                 });
             } else {
                 res.status(404).json({message: "Format ID tidak valid"});
