@@ -12,7 +12,7 @@ var date_create = date+'_'+time;
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './uploads/');
+        cb(null, '../../uploads/');
     },
     filename: function(req, file, cb) {
         cb(null, date_create +"_"+ file.originalname);
@@ -100,7 +100,7 @@ router.get('/cat/:cat',  (req, res, next) => {
                         harga: doc.harga,
                         description: doc.description,
                         size: doc.size,
-                        image: "http://localhost:3000/uploads/" + doc.image,
+                        image: "uploads/" + doc.image,
                         category: doc.category,
                     }
                 })
