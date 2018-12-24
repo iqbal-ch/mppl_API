@@ -131,7 +131,7 @@ router.get('/', (req, res, next) => {
                         harga: doc.harga,
                         description: doc.description,
                         size: doc.size,
-                        image: "http://localhost:3000/uploads/" + doc.image,
+                        image: "uploads/" + doc.image,
                         category: doc.category,
                     }
                 })
