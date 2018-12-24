@@ -25,11 +25,11 @@ const barangRoutes = require('./api/routes/barangs');
 // const imageRoutes = require('./api/routes/images');
 
 
-mongoose.connect('mongodb://127.0.0.1:27017');
-mongoose.connect('mongodb://localhost:27017/eventarich_me');
-// mongoose.connect(keys.mongodb.dbURI, () => {
-//     console.log('connected to mongodb');
-// });
+// mongoose.connect('mongodb://127.0.0.1:27017');
+// mongoose.connect('mongodb://localhost:27017/eventarich_me');
+mongoose.connect(keys.mongodb.dbURI, () => {
+    console.log('connected to mongodb');
+});
 mongoose.Promise = global.Promise;
 
 const router = express.Router();
