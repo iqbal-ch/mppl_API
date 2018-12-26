@@ -12,7 +12,7 @@ var date_create = date+'_'+time;
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, '../../uploads/');
+        cb(null, './uploads/');
     },
     filename: function(req, file, cb) {
         cb(null, date_create +"_"+ file.originalname);
